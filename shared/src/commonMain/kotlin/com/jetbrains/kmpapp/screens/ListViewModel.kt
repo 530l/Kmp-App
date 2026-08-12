@@ -12,5 +12,7 @@ class ListViewModel(museumRepository: MuseumRepository) : ViewModel() {
     @NativeCoroutinesState
     val objects: StateFlow<List<MuseumObject>> =
         museumRepository.getObjects()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+            .stateIn(viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                emptyList())
 }
