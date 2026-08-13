@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.kmpNativeCoroutines)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -24,6 +26,7 @@ kotlin {
 
     listOf(
         iosArm64(),
+        iosX64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
@@ -45,6 +48,9 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.koin.core)
             api(libs.kmp.observable.viewmodel)
+            // Ktorfit：用注解接口描述 PokeAPI，比手写 Ktor 省事
+            implementation(libs.ktorfit.lib)
+            implementation(libs.ktorfit.converters.flow)
         }
 
         // Required by KMM-ViewModel

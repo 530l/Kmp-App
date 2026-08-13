@@ -1,13 +1,11 @@
 package com.jetbrains.kmpapp.di
 
-import com.jetbrains.kmpapp.data.InMemoryMuseumStorage
-import com.jetbrains.kmpapp.data.KtorMuseumApi
-import com.jetbrains.kmpapp.data.MuseumApi
-import com.jetbrains.kmpapp.data.MuseumRepository
-import com.jetbrains.kmpapp.data.MuseumStorage
+import com.jetbrains.kmpapp.data.remote.PokeApi
+import com.jetbrains.kmpapp.data.remote.createPokeApi
+import com.jetbrains.kmpapp.data.repository.PokemonRepository
+import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
@@ -19,19 +17,21 @@ val dataModule = module {
         val json = Json { ignoreUnknownKeys = true }
         HttpClient {
             install(ContentNegotiation) {
-                // TODO Fix API so it serves application/json
-                json(json, contentType = ContentType.Any)
+                json(json)
             }
         }
     }
 
-    single<MuseumApi> { KtorMuseumApi(get()) }
-    single<MuseumStorage> { InMemoryMuseumStorage() }
-    single {
-        MuseumRepository(get(), get()).apply {
-            initialize()
-        }
+    // Ktorfit 拼 HttpClient + baseUrl，再生成 PokeApi 实现类
+    single<PokeApi> {
+        Ktorfit.Builder()
+            .baseUrl("https://pokeapi.co/api/v2/")
+            .httpClient(get<HttpClient>())
+            .build()
+            .createPokeApi()
     }
+
+    single { PokemonRepository(get()) }
 }
 
 fun initKoin() = initKoin(emptyList())

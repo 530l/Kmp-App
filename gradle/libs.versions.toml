@@ -6,7 +6,6 @@ android-targetSdk = "37"
 androidx-activity = "1.13.0"
 androidx-compose = "1.10.4"
 androidx-lifecycle = "2.11.0-beta01"
-androidx-navigation = "2.9.8"
 coil = "3.5.0"
 compose-material-icons = "1.7.3"
 compose-material3 = "1.11.0-alpha07"
@@ -17,6 +16,9 @@ koin = "4.2.2"
 kotlin = "2.4.10"
 kotlinx-serialization = "1.11.0"
 ktor = "3.5.1"
+ktorfit = "2.7.5"
+ksp = "2.3.11"
+navigation3 = "1.1.4"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
@@ -38,10 +40,15 @@ ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "kto
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "androidx-compose" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 androidx-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 kmp-observable-viewmodel = { module = "com.rickclephas.kmp:kmp-observableviewmodel-core", version.ref = "kmp-observable-viewmodel" }
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
+
+# —— Ktorfit(像 Retrofit 的网络接口) + Navigation 3(Android 新导航) ——
+ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref = "ktorfit" }
+ktorfit-converters-flow = { module = "de.jensklingenberg.ktorfit:ktorfit-converters-flow", version.ref = "ktorfit" }
+navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -51,3 +58,5 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-mu
 kmpNativeCoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "kmp-native-coroutines" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
