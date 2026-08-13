@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -52,7 +52,6 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var repassword by remember { mutableStateOf("") }
 
-    // 登录成功回调
     LaunchedEffect(state.success) {
         if (state.success) onSuccess()
     }
@@ -66,23 +65,27 @@ fun LoginScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                     }
                 },
+                modifier = Modifier.statusBarsPadding(),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            Spacer(Modifier.height(16.dp))
+
             Text(
                 if (state.mode == LoginMode.LOGIN) "欢迎回来" else "创建账号",
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
             )
+
+            Spacer(Modifier.height(4.dp))
 
             OutlinedTextField(
                 value = username,
@@ -112,18 +115,16 @@ fun LoginScreen(
                 )
             }
 
-            // 错误信息
             state.error?.let { msg ->
                 Text(msg, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
-            // 提交按钮
             Button(
                 onClick = { viewModel.submit(username, password, repassword) },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier.fillMaxWidth().height(44.dp),
+                shape = RoundedCornerShape(10.dp),
                 enabled = !state.loading,
             ) {
                 if (state.loading) {
@@ -137,7 +138,6 @@ fun LoginScreen(
                 }
             }
 
-            // 切换登录/注册
             TextButton(
                 onClick = {
                     viewModel.switchMode(if (state.mode == LoginMode.LOGIN) LoginMode.REGISTER else LoginMode.LOGIN)

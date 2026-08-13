@@ -2,8 +2,8 @@ package com.jetbrains.kmpapp.presentation
 
 import com.jetbrains.kmpapp.data.model.Article
 import com.jetbrains.kmpapp.data.model.HotKey
-import com.jetbrains.kmpapp.domain.usecase.GetHotKeysUseCase
-import com.jetbrains.kmpapp.domain.usecase.SearchArticlesUseCase
+import com.jetbrains.kmpapp.data.repository.ArticleRepository
+import com.jetbrains.kmpapp.data.repository.SystemRepository
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.observableviewmodel.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,8 +24,8 @@ data class SearchState(
 )
 
 class SearchViewModel(
-    private val getHotKeys: GetHotKeysUseCase,
-    private val searchArticles: SearchArticlesUseCase,
+    private val systemRepo: SystemRepository,
+    private val articleRepo: ArticleRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SearchState())
@@ -41,7 +41,7 @@ class SearchViewModel(
     private fun loadHotKeys() {
         viewModelScope.coroutineScope.launch {
             try {
-                val result = getHotKeys()
+                val result = systemRepo.getHotKeys()
                 if (result.isSuccess && result.data != null) {
                     _state.value = _state.value.copy(hotKeys = result.data)
                 }
@@ -64,7 +64,7 @@ class SearchViewModel(
         _state.value = _state.value.copy(keyword = q, loading = true, searched = true)
         viewModelScope.coroutineScope.launch {
             try {
-                val result = searchArticles(page, q)
+                val result = articleRepo.searchArticles(page, q)
                 if (result.isSuccess && result.data != null) {
                     val p = result.data
                     _state.value = _state.value.copy(
@@ -92,7 +92,7 @@ class SearchViewModel(
         _state.value = current.copy(loadingMore = true)
         viewModelScope.coroutineScope.launch {
             try {
-                val result = searchArticles(page, current.keyword)
+                val result = articleRepo.searchArticles(page, current.keyword)
                 if (result.isSuccess && result.data != null) {
                     val p = result.data
                     _state.value = _state.value.copy(

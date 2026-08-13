@@ -5,8 +5,8 @@ import KMPObservableViewModelSwiftUI
 // 公众号页：公众号 Tab + 文章列表
 struct WxView: View {
     @StateViewModel var viewModel = WxViewModel(
-        getWxAccounts: KoinDependencies().getWxAccounts,
-        getWxArticles: KoinDependencies().getWxArticles
+        systemRepo: KoinDependencies().systemRepository,
+        articleRepo: KoinDependencies().articleRepository
     )
 
     var body: some View {

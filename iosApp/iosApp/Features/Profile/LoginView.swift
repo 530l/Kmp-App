@@ -5,8 +5,7 @@ import KMPObservableViewModelSwiftUI
 // 登录/注册页
 struct LoginView: View {
     @StateViewModel var viewModel = LoginViewModel(
-        login: KoinDependencies().login,
-        register: KoinDependencies().register
+        repo: KoinDependencies().accountRepository
     )
     @State private var username = ""
     @State private var password = ""

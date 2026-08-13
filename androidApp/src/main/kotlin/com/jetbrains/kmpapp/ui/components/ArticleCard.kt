@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetbrains.kmpapp.data.model.Article
 
-// 文章卡片：大厂风格的简洁信息流卡片
+// 文章卡片：紧凑信息流风格
 @Composable
 fun ArticleCard(
     article: Article,
@@ -36,21 +36,18 @@ fun ArticleCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.5.dp),
     ) {
-        Column(Modifier.padding(14.dp)) {
-            // 标签行：置顶/新 + 分类
-            if (article.fresh || article.tags.isNotEmpty() || article.displayChapter.isNotBlank()) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            // 标签行：新 + 分类（只有有时才显示）
+            if (article.fresh || article.displayChapter.isNotBlank()) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (article.fresh) TagChip(text = "新", color = MaterialTheme.colorScheme.error)
-                    article.tags.take(1).forEach { tag ->
-                        TagChip(text = tag.name, outlined = true)
-                    }
                     if (article.displayChapter.isNotBlank()) {
                         Text(
                             article.displayChapter,
@@ -61,7 +58,7 @@ fun ArticleCard(
                         )
                     }
                 }
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(4.dp))
             }
 
             // 标题
@@ -74,7 +71,7 @@ fun ArticleCard(
 
             // 描述（有的话）
             if (article.desc.isNotBlank()) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(2.dp))
                 Text(
                     article.desc,
                     style = MaterialTheme.typography.bodyMedium,
@@ -84,9 +81,9 @@ fun ArticleCard(
                 )
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
 
-            // 底栏：作者 + 时间 + 收藏按钮
+            // 底栏：作者 + 时间 + 收藏
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -107,14 +104,14 @@ fun ArticleCard(
                 if (onCollectClick != null) {
                     IconButton(
                         onClick = { onCollectClick(article) },
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(28.dp),
                     ) {
                         Icon(
                             if (article.collect) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = if (article.collect) "取消收藏" else "收藏",
                             tint = if (article.collect) MaterialTheme.colorScheme.primary
                             else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(18.dp),
+                            modifier = Modifier.size(16.dp),
                         )
                     }
                 }

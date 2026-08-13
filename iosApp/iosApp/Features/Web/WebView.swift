@@ -14,7 +14,7 @@ struct WebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 }
 
-// WebView 容器页面，带标题栏
+// WebView 容器页面，带标题栏，隐藏底部 Tab 栏
 struct WebPage: View {
     let url: String
     let title: String
@@ -23,5 +23,7 @@ struct WebPage: View {
         WebView(url: url)
             .navigationTitle(title.isEmpty ? "加载中…" : title)
             .navigationBarTitleDisplayMode(.inline)
+            // push 进 NavigationStack 后隐藏底部 Tab 栏，和 Android 全屏效果一致
+            .toolbar(.hidden, for: .tabBar)
     }
 }

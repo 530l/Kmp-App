@@ -1,7 +1,7 @@
 package com.jetbrains.kmpapp.presentation
 
 import com.jetbrains.kmpapp.data.model.Article
-import com.jetbrains.kmpapp.domain.usecase.GetCollectionsUseCase
+import com.jetbrains.kmpapp.data.repository.ArticleRepository
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.observableviewmodel.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +19,7 @@ data class CollectionState(
 )
 
 class CollectionViewModel(
-    private val getCollections: GetCollectionsUseCase,
+    private val repo: ArticleRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CollectionState(loading = true))
@@ -36,7 +36,7 @@ class CollectionViewModel(
         _state.value = CollectionState(loading = true)
         viewModelScope.coroutineScope.launch {
             try {
-                val result = getCollections(page)
+                val result = repo.getCollectList(page)
                 if (result.isSuccess && result.data != null) {
                     val p = result.data
                     _state.value = CollectionState(
@@ -59,7 +59,7 @@ class CollectionViewModel(
         _state.value = current.copy(loadingMore = true)
         viewModelScope.coroutineScope.launch {
             try {
-                val result = getCollections(page)
+                val result = repo.getCollectList(page)
                 if (result.isSuccess && result.data != null) {
                     val p = result.data
                     _state.value = _state.value.copy(

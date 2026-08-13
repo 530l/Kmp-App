@@ -5,8 +5,8 @@ import KMPObservableViewModelSwiftUI
 // 体系页：二级分类 Tab + 文章列表
 struct SystemView: View {
     @StateViewModel var viewModel = SystemViewModel(
-        getSystemTree: KoinDependencies().getSystemTree,
-        getChapterArticles: KoinDependencies().getChapterArticles
+        systemRepo: KoinDependencies().systemRepository,
+        articleRepo: KoinDependencies().articleRepository
     )
 
     var body: some View {

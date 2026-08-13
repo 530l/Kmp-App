@@ -5,8 +5,7 @@ import KMPObservableViewModelSwiftUI
 // 首页：置顶 + 文章列表，快滚到底自动加载
 struct HomeView: View {
     @StateViewModel var viewModel = HomeViewModel(
-        getHomeArticles: KoinDependencies().getHomeArticles,
-        getTopArticles: KoinDependencies().getTopArticles
+        repo: KoinDependencies().articleRepository
     )
 
     var body: some View {

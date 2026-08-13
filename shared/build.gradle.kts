@@ -48,7 +48,7 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.koin.core)
             api(libs.kmp.observable.viewmodel)
-            // Ktorfit：用注解接口描述 PokeAPI，比手写 Ktor 省事
+            // Ktorfit：用注解接口描述 wanandroid API
             implementation(libs.ktorfit.lib)
             implementation(libs.ktorfit.converters.flow)
         }
@@ -58,5 +58,10 @@ kotlin {
             languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
         }
+    }
+
+    // expect/actual classes 目前是 Beta 特性，显式开启以消除警告
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
     }
 }

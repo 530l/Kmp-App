@@ -25,14 +25,15 @@ class WanApp : Application(), SingletonImageLoader.Factory {
         initKoin(
             listOf(
                 module {
-                    // 各 ViewModel 通过 Koin 注入 UseCase（自动解析）
-                    factory { HomeViewModel(get(), get()) }
-                    factory { SystemViewModel(get(), get()) }
-                    factory { WxViewModel(get(), get()) }
-                    factory { SearchViewModel(get(), get()) }
-                    factory { LoginViewModel(get(), get()) }
+                    // Tab 页 ViewModel 用 single，切 Tab 不重新加载
+                    single { HomeViewModel(get()) }
+                    single { SystemViewModel(get(), get()) }
+                    single { WxViewModel(get(), get()) }
+                    single { SearchViewModel(get(), get()) }
+                    single { ProfileViewModel(get()) }
+                    // 详情页 ViewModel 用 factory，每次进入新建
+                    factory { LoginViewModel(get()) }
                     factory { CollectionViewModel(get()) }
-                    factory { ProfileViewModel(get()) }
                 },
             ),
         )

@@ -1,9 +1,7 @@
 package com.jetbrains.kmpapp.presentation
 
 import com.jetbrains.kmpapp.data.model.Article
-import com.jetbrains.kmpapp.domain.usecase.GetHomeArticlesUseCase
-import com.jetbrains.kmpapp.domain.usecase.GetTopArticlesUseCase
-import com.rickclephas.kmp.nativecoroutines.NativeCoroutinesState
+import com.jetbrains.kmpapp.data.repository.ArticleRepository
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.observableviewmodel.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,8 +20,7 @@ data class HomeState(
 )
 
 class HomeViewModel(
-    private val getHomeArticles: GetHomeArticlesUseCase,
-    private val getTopArticles: GetTopArticlesUseCase,
+    private val repo: ArticleRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState(loading = true))
@@ -41,8 +38,8 @@ class HomeViewModel(
         _state.value = HomeState(loading = true)
         viewModelScope.coroutineScope.launch {
             try {
-                val tops = getTopArticles().data ?: emptyList()
-                val result = getHomeArticles(page)
+                val tops = repo.getTopArticles().data ?: emptyList()
+                val result = repo.getHomeArticles(page)
                 if (result.isSuccess) {
                     val p = result.data!!
                     _state.value = HomeState(
@@ -67,7 +64,7 @@ class HomeViewModel(
         viewModelScope.coroutineScope.launch {
             try {
                 page++
-                val result = getHomeArticles(page)
+                val result = repo.getHomeArticles(page)
                 if (result.isSuccess && result.data != null) {
                     val p = result.data
                     _state.value = current.copy(

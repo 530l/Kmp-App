@@ -4,31 +4,33 @@ import com.jetbrains.kmpapp.data.model.ApiResult
 import com.jetbrains.kmpapp.data.model.Article
 import com.jetbrains.kmpapp.data.model.Page
 import com.jetbrains.kmpapp.data.remote.WanAndroidApi
+import com.jetbrains.kmpapp.data.remote.toApiResult
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 
-// 文章数据仓库：首页、置顶、体系文章、公众号文章、搜索
-class ArticleRepository(private val api: WanAndroidApi) {
+// 文章数据仓库：toApiResult 内部已切 IO 线程
+class ArticleRepository(
+    private val api: WanAndroidApi,
+    private val json: Json,
+) {
+    private val pageSerializer = Page.serializer(Article.serializer())
+    private val listSerializer = ListSerializer(Article.serializer())
 
-    // 首页文章列表，page 从 0 开始
     suspend fun getHomeArticles(page: Int): ApiResult<Page<Article>> =
-        api.getHomeArticles(page)
+        api.getHomeArticles(page).toApiResult(json, pageSerializer)
 
-    // 首页置顶文章
     suspend fun getTopArticles(): ApiResult<List<Article>> =
-        api.getTopArticles()
+        api.getTopArticles().toApiResult(json, listSerializer)
 
-    // 某分类下的文章
     suspend fun getChapterArticles(page: Int, cid: Int): ApiResult<Page<Article>> =
-        api.getChapterArticles(page, cid)
+        api.getChapterArticles(page, cid).toApiResult(json, pageSerializer)
 
-    // 某公众号的文章列表，page 从 1 开始
     suspend fun getWxArticles(id: Int, page: Int): ApiResult<Page<Article>> =
-        api.getWxArticles(id, page)
+        api.getWxArticles(id, page).toApiResult(json, pageSerializer)
 
-    // 搜索文章
     suspend fun searchArticles(page: Int, keyword: String): ApiResult<Page<Article>> =
-        api.searchArticles(page, keyword)
+        api.searchArticles(page, keyword).toApiResult(json, pageSerializer)
 
-    // 收藏列表
     suspend fun getCollectList(page: Int): ApiResult<Page<Article>> =
-        api.getCollectList(page)
+        api.getCollectList(page).toApiResult(json, pageSerializer)
 }

@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,13 +22,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jetbrains.kmpapp.presentation.CollectionViewModel
 import com.jetbrains.kmpapp.ui.components.ArticleCard
-import com.jetbrains.kmpapp.ui.components.EmptyState
 import com.jetbrains.kmpapp.ui.components.EndFooter
+import com.jetbrains.kmpapp.ui.components.EmptyState
 import com.jetbrains.kmpapp.ui.components.ErrorState
 import com.jetbrains.kmpapp.ui.components.LoadingFooter
 import com.jetbrains.kmpapp.ui.components.LoadingState
@@ -40,6 +39,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun CollectionScreen(
     viewModel: CollectionViewModel = koinViewModel(),
+    onBack: () -> Unit,
     onArticleClick: (String, String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -56,14 +56,15 @@ fun CollectionScreen(
         TopAppBar(
             title = { Text("我的收藏") },
             navigationIcon = {
-                IconButton(onClick = {}) {
+                IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
                 }
             },
+            modifier = Modifier.statusBarsPadding(),
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                titleContentColor = Color.White,
-                navigationIconContentColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         )
 
@@ -74,8 +75,8 @@ fun CollectionScreen(
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = listState,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 items(state.articles, key = { it.id }) { article ->
                     ArticleCard(

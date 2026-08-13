@@ -5,7 +5,7 @@ import KMPObservableViewModelSwiftUI
 // 我的收藏页
 struct CollectionView: View {
     @StateViewModel var viewModel = CollectionViewModel(
-        getCollections: KoinDependencies().getCollections
+        repo: KoinDependencies().articleRepository
     )
 
     var body: some View {
@@ -35,6 +35,7 @@ struct CollectionView: View {
         }
         .navigationTitle("我的收藏")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     private func loadMoreIfNeeded(_ article: Article) {

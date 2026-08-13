@@ -2,8 +2,8 @@ package com.jetbrains.kmpapp.presentation
 
 import com.jetbrains.kmpapp.data.model.Article
 import com.jetbrains.kmpapp.data.model.Chapter
-import com.jetbrains.kmpapp.domain.usecase.GetChapterArticlesUseCase
-import com.jetbrains.kmpapp.domain.usecase.GetSystemTreeUseCase
+import com.jetbrains.kmpapp.data.repository.ArticleRepository
+import com.jetbrains.kmpapp.data.repository.SystemRepository
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.observableviewmodel.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,10 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// 体系页状态：分类树 + 当前选中分类的文章列表
-data class SystemState(
-    val tree: List<Chapter> = emptyList(),
-    val selectedChapter: Chapter? = null,
+// 单个分类的文章状态
+data class ChapterArticles(
     val articles: List<Article> = emptyList(),
     val loading: Boolean = false,
     val loadingMore: Boolean = false,
@@ -22,83 +20,121 @@ data class SystemState(
     val error: String? = null,
 )
 
+// 体系页状态：分类树 + 每个分类的文章列表（各自独立，切 Pager 不丢数据）
+data class SystemState(
+    val tree: List<Chapter> = emptyList(),
+    val selectedIndex: Int = 0,
+    // key = 分类 cid，value = 该分类的文章状态
+    val articlesMap: Map<Int, ChapterArticles> = emptyMap(),
+)
+
 class SystemViewModel(
-    private val getSystemTree: GetSystemTreeUseCase,
-    private val getChapterArticles: GetChapterArticlesUseCase,
+    private val systemRepo: SystemRepository,
+    private val articleRepo: ArticleRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(SystemState(loading = true))
+    private val _state = MutableStateFlow(SystemState())
     val state: StateFlow<SystemState> = _state.asStateFlow()
 
-    private var page = 0
+    // 每个分类的当前页码
+    private val pageMap = mutableMapOf<Int, Int>()
 
     init {
         loadTree()
     }
 
-    // 重新加载体系树
     fun refresh() = loadTree()
 
-    // 加载体系树，默认选中第一个叶子节点（二级分类）
+    // 加载体系树，默认选中第一个叶子节点
     private fun loadTree() {
         viewModelScope.coroutineScope.launch {
             try {
-                val result = getSystemTree()
+                val result = systemRepo.getSystemTree()
                 if (result.isSuccess && result.data != null) {
                     val tree = result.data
-                    // 找第一个有 id 的二级分类作为默认选中
-                    val firstLeaf = tree.firstNotNullOfOrNull { parent ->
-                        parent.children.firstOrNull()
-                    }
-                    _state.value = SystemState(tree = tree, selectedChapter = firstLeaf)
-                    if (firstLeaf != null) loadArticles(firstLeaf.id, reset = true)
-                } else {
-                    _state.value = SystemState(error = result.errorMsg ?: "加载失败")
+                    val leaves = tree.flatMap { it.children }
+                    _state.value = SystemState(tree = tree, selectedIndex = 0)
+                    if (leaves.isNotEmpty()) loadArticles(leaves[0].id, reset = true)
                 }
             } catch (e: Exception) {
-                _state.value = SystemState(error = e.message ?: "网络异常")
+                // 静默处理，tree 为空时 UI 显示空态
             }
         }
     }
 
-    // 切换分类
-    fun selectChapter(chapter: Chapter) {
-        if (_state.value.selectedChapter?.id == chapter.id) return
-        _state.value = _state.value.copy(selectedChapter = chapter)
-        loadArticles(chapter.id, reset = true)
+    // Pager 切页时调用
+    fun selectIndex(index: Int) {
+        val leaves = _state.value.tree.flatMap { it.children }
+        if (index !in leaves.indices) return
+        _state.value = _state.value.copy(selectedIndex = index)
+        val cid = leaves[index].id
+        // 没加载过才加载
+        if (!_state.value.articlesMap.containsKey(cid)) {
+            loadArticles(cid, reset = true)
+        }
     }
 
-    // 加载某分类的文章，reset=true 表示从头开始（切换分类时）
+    // 下拉刷新当前分类
+    fun refreshCurrent() {
+        val leaves = _state.value.tree.flatMap { it.children }
+        val index = _state.value.selectedIndex
+        if (index in leaves.indices) {
+            loadArticles(leaves[index].id, reset = true)
+        }
+    }
+
+    // 加载某分类的文章
     private fun loadArticles(cid: Int, reset: Boolean) {
-        if (reset) page = 0
-        val current = _state.value
-        _state.value = if (reset) current.copy(loading = true) else current.copy(loadingMore = true)
+        if (reset) pageMap[cid] = 0
+        val page = pageMap[cid] ?: 0
+
+        // 标记 loading
+        val currentChapter = _state.value.articlesMap[cid] ?: ChapterArticles()
+        _state.value = _state.value.copy(
+            articlesMap = _state.value.articlesMap + (cid to currentChapter.copy(
+                loading = reset,
+                loadingMore = !reset,
+            )),
+        )
+
         viewModelScope.coroutineScope.launch {
             try {
-                val result = getChapterArticles(page, cid)
-                if (result.isSuccess && result.data != null) {
+                val result = articleRepo.getChapterArticles(page, cid)
+                val updated = if (result.isSuccess && result.data != null) {
                     val p = result.data
-                    _state.value = _state.value.copy(
-                        articles = if (reset) p.datas else current.articles + p.datas,
+                    val list = if (reset) p.datas else currentChapter.articles + p.datas
+                    ChapterArticles(
+                        articles = list,
                         loading = false,
                         loadingMore = false,
                         finished = p.over,
                     )
                 } else {
-                    _state.value = _state.value.copy(loading = false, loadingMore = false)
+                    currentChapter.copy(loading = false, loadingMore = false)
                 }
+                _state.value = _state.value.copy(
+                    articlesMap = _state.value.articlesMap + (cid to updated),
+                )
             } catch (e: Exception) {
-                _state.value = _state.value.copy(loading = false, loadingMore = false)
+                _state.value = _state.value.copy(
+                    articlesMap = _state.value.articlesMap + (cid to currentChapter.copy(
+                        loading = false,
+                        loadingMore = false,
+                    )),
+                )
             }
         }
     }
 
-    // 下一页
+    // 下一页（当前分类）
     fun loadMore() {
-        val cid = _state.value.selectedChapter?.id ?: return
-        val current = _state.value
-        if (current.loadingMore || current.finished || current.loading) return
-        page++
+        val leaves = _state.value.tree.flatMap { it.children }
+        val index = _state.value.selectedIndex
+        if (index !in leaves.indices) return
+        val cid = leaves[index].id
+        val chapter = _state.value.articlesMap[cid] ?: return
+        if (chapter.loadingMore || chapter.finished || chapter.loading) return
+        pageMap[cid] = (pageMap[cid] ?: 0) + 1
         loadArticles(cid, reset = false)
     }
 }

@@ -1,7 +1,6 @@
 package com.jetbrains.kmpapp.presentation
 
-import com.jetbrains.kmpapp.domain.usecase.LoginUseCase
-import com.jetbrains.kmpapp.domain.usecase.RegisterUseCase
+import com.jetbrains.kmpapp.data.repository.AccountRepository
 import com.rickclephas.kmp.observableviewmodel.ViewModel
 import com.rickclephas.kmp.observableviewmodel.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +19,7 @@ data class LoginState(
 enum class LoginMode { LOGIN, REGISTER }
 
 class LoginViewModel(
-    private val login: LoginUseCase,
-    private val register: RegisterUseCase,
+    private val repo: AccountRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginState())
@@ -42,13 +40,13 @@ class LoginViewModel(
         viewModelScope.coroutineScope.launch {
             try {
                 val result = if (_state.value.mode == LoginMode.LOGIN) {
-                    login(username, password)
+                    repo.login(username, password)
                 } else {
                     if (password != repassword) {
                         _state.value = _state.value.copy(loading = false, error = "两次密码不一致")
                         return@launch
                     }
-                    register(username, password, repassword)
+                    repo.register(username, password, repassword)
                 }
                 if (result.isSuccess) {
                     _state.value = _state.value.copy(loading = false, success = true)

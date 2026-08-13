@@ -5,8 +5,8 @@ import KMPObservableViewModelSwiftUI
 // 搜索页：搜索框 + 热搜词 + 结果列表
 struct SearchView: View {
     @StateViewModel var viewModel = SearchViewModel(
-        getHotKeys: KoinDependencies().getHotKeys,
-        searchArticles: KoinDependencies().searchArticles
+        systemRepo: KoinDependencies().systemRepository,
+        articleRepo: KoinDependencies().articleRepository
     )
     @State private var query = ""
 
