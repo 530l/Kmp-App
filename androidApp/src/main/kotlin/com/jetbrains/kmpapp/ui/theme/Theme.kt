@@ -10,9 +10,18 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// 用精灵球红当主色，其余走 Material3 默认色板
-private val DarkColors = darkColorScheme(primary = PokeRed, secondary = PokeRedDark)
-private val LightColors = lightColorScheme(primary = PokeRed, secondary = PokeRedDark)
+// 用大厂蓝当主色，其余走 Material3 默认色板
+private val DarkColors = darkColorScheme(
+    primary = WanBlueLight,
+    secondary = WanBlueDark,
+    error = WanRed,
+)
+
+private val LightColors = lightColorScheme(
+    primary = WanBlue,
+    secondary = WanBlueDark,
+    error = WanRed,
+)
 
 @Composable
 fun KmpTheme(
@@ -26,7 +35,7 @@ fun KmpTheme(
             val window = (view.context as android.app.Activity).window
             // 沉浸式：状态栏图标颜色跟主题走（深色主题用浅色图标）
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            // 关掉系统底栏的半透明遮罩，让我们的底栏颜色一直铺到屏幕边
+            // 关掉系统底栏的半透明遮罩
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 window.isNavigationBarContrastEnforced = false
             }

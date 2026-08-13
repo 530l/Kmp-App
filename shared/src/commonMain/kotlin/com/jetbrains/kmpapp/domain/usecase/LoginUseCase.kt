@@ -1,0 +1,11 @@
+package com.jetbrains.kmpapp.domain.usecase
+
+import com.jetbrains.kmpapp.data.model.ApiResult
+import com.jetbrains.kmpapp.data.model.LoginData
+import com.jetbrains.kmpapp.data.repository.AccountRepository
+
+// 登录
+class LoginUseCase(private val repo: AccountRepository) {
+    suspend operator fun invoke(username: String, password: String): ApiResult<LoginData> =
+        repo.login(username, password)
+}

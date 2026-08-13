@@ -5,10 +5,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// 标题加粗放大一点，更有图鉴 App 的辨识度；其余沿用 Material3 默认
+// 正文略大、标题加粗，适合内容阅读型 App
 val AppTypography = Typography(
-    titleLarge = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-    titleMedium = TextStyle(fontWeight = FontWeight.Bold),
-    headlineMedium = TextStyle(fontWeight = FontWeight.Bold),
-    labelLarge = TextStyle(fontWeight = FontWeight.SemiBold),
+    titleLarge = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold),
+    titleMedium = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+    bodyLarge = TextStyle(fontSize = 16.sp, lineHeight = 24.sp),
+    bodyMedium = TextStyle(fontSize = 14.sp, lineHeight = 20.sp),
+    labelSmall = TextStyle(fontSize = 11.sp),
 )
